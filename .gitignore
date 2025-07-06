@@ -1,0 +1,17 @@
+# Dependencies
+**/node_modules
+**/dist
+
+# dotenv secrets
+**/.env
+
+# Vite dev server cache
+.vite
+
+# Logs
+logs
+*.log
+
+# Others
+.DS_Store
+.env.local
