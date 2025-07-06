@@ -1,44 +1,41 @@
-// server.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
 
 dotenv.config();
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-// 🛡️ Sanity check for API key
-if (!OPENROUTER_API_KEY) {
-    console.error("❌ Missing OPENROUTER_API_KEY in .env");
+if (!GROQ_API_KEY) {
+    console.error("❌ Missing GROQ_API_KEY in .env");
     process.exit(1);
 }
 
 app.post("/generate", async (req, res) => {
     try {
-        console.log("🔁 Request Body:", req.body);
-
-        const openrouterRes = await fetch("https://openrouter.xyz/api/v1/chat/completions", {
+        const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
-                Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+                Authorization: `Bearer ${GROQ_API_KEY}`,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(req.body),
+            body: JSON.stringify({
+                model: "llama3-8b-8192",
+                messages: req.body.messages,
+            }),
         });
 
-        const data = await openrouterRes.json();
-        console.log("📦 OpenRouter Response:", data);
+        const data = await groqRes.json();
+        console.log("📦 Groq Response:", data);
 
-        if (!openrouterRes.ok || !data.choices) {
-            return res.status(500).json({
-                error: "OpenRouter returned error",
-                details: data.error?.message || data,
-            });
+        if (!data.choices || !data.choices[0]?.message?.content) {
+            return res.status(500).json({ error: "Groq response invalid", data });
         }
 
         res.json(data);
@@ -49,5 +46,5 @@ app.post("/generate", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server listening at ${PORT}`);
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

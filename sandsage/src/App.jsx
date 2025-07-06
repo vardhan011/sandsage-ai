@@ -6,6 +6,14 @@ function App() {
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const LoadingSpinner = () => (
+    <div className="flex items-center justify-center space-x-2 mt-6">
+      <div className="w-3 h-3 rounded-full animate-ping bg-yellow-600"></div>
+      <div className="w-3 h-3 rounded-full animate-ping bg-yellow-700 delay-150"></div>
+      <div className="w-3 h-3 rounded-full animate-ping bg-yellow-800 delay-300"></div>
+    </div>
+  );
+
   const handleGenerate = async () => {
     setLoading(true);
     setResponse("");
@@ -19,7 +27,7 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "mistral/mistral-7b-instruct",
+          model: "llama3-8b-8192",
           messages: [
             { role: "system", content: "You are a wise sage from the desert." },
             { role: "user", content: prompt },
@@ -27,7 +35,15 @@ function App() {
         }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      console.log("📃 Raw response text:", text);
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (err) {
+        throw new Error("Invalid JSON response from backend");
+      }
 
       if (!res.ok || !data.choices || !data.choices[0]?.message?.content) {
         console.error("⚠️ Invalid backend response:", data);
@@ -37,43 +53,48 @@ function App() {
       setResponse(data.choices[0].message.content);
     } catch (err) {
       console.error("❌ Error:", err.message);
-      setResponse("⚠️ Failed to fetch wisdom from the sands. Please try again.");
+      setResponse("⚠️ The winds were silent. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-yellow-100 to-orange-100 text-center">
-      <h1 className="text-3xl font-bold mb-4">🌾 SandSage</h1>
-      <p className="mb-6 text-gray-700">Get poetic wisdom written in the sands of AI 🌬️</p>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-amber-100 via-yellow-200 to-orange-200 text-center font-serif">
+      <h1 className="text-4xl font-bold mb-2 tracking-wide text-yellow-800">🌾 SandSage</h1>
+      <p className="mb-6 text-yellow-700 italic">
+        Whisper your feelings to the desert... and receive ancient wisdom 🌬️
+      </p>
 
       <input
         type="text"
-        placeholder="How are you feeling?"
-        className="border p-2 rounded mb-3 w-full max-w-md"
+        placeholder="What emotion fills your heart?"
+        className="border border-yellow-500 bg-white/90 p-2 rounded mb-3 w-full max-w-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
         value={emotion}
         onChange={(e) => setEmotion(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
       />
       <input
         type="text"
-        placeholder="Ask a deep question..."
-        className="border p-2 rounded mb-3 w-full max-w-md"
+        placeholder="Ask the sands a deep question..."
+        className="border border-yellow-500 bg-white/90 p-2 rounded mb-3 w-full max-w-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
       />
+
       <button
-        className="bg-orange-400 text-white px-4 py-2 rounded hover:bg-orange-500"
+        className="bg-yellow-600 hover:bg-yellow-700 text-white px-5 py-2 rounded shadow-lg transition duration-200 disabled:opacity-50"
         onClick={handleGenerate}
         disabled={loading}
       >
-        {loading ? "Summoning Wisdom..." : "Reveal the Sand's Message"}
+        {loading ? "Summoning Wisdom..." : "Ask the Sand"}
       </button>
 
+      {loading && <LoadingSpinner />}
+
       {response && (
-        <div className="mt-6 p-4 border bg-white rounded shadow max-w-xl text-gray-800 italic whitespace-pre-wrap">
+        <div className="mt-6 p-5 border-2 border-yellow-600 bg-white/80 rounded-lg shadow-xl max-w-2xl text-gray-800 italic whitespace-pre-wrap overflow-y-auto max-h-[400px]">
           {response}
         </div>
       )}
