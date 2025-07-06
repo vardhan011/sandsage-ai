@@ -22,7 +22,7 @@ app.post("/generate", async (req, res) => {
     try {
         console.log("🔁 Request Body:", req.body);
 
-        const openrouterRes = await fetch("https://api.openrouter.ai/v1/chat/completions", {
+        const openrouterRes = await fetch("https://openrouter.xyz/api/v1/chat/completions", {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${OPENROUTER_API_KEY}`,
