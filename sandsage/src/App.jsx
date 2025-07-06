@@ -13,7 +13,7 @@ function App() {
     const prompt = `Imagine you're an ancient sage writing in the sand. Respond poetically to this feeling: "${emotion}" and this question: "${question}".`;
 
     try {
-      const res = await fetch("http://localhost:3001/generate", {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
