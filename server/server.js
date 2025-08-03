@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3001;
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 if (!GROQ_API_KEY) {
-    console.error("❌ Missing GROQ_API_KEY in .env");
+    console.error(" Missing GROQ_API_KEY in .env");
     process.exit(1);
 }
 
@@ -32,7 +32,7 @@ app.post("/generate", async (req, res) => {
         });
 
         const data = await groqRes.json();
-        console.log("📦 Groq Response:", data);
+        console.log("Groq Response:", data);
 
         if (!data.choices || !data.choices[0]?.message?.content) {
             return res.status(500).json({ error: "Groq response invalid", data });
@@ -40,11 +40,11 @@ app.post("/generate", async (req, res) => {
 
         res.json(data);
     } catch (err) {
-        console.error("🔥 Server error:", err);
+        console.error(" Server error:", err);
         res.status(500).json({ error: "Internal Server Error", message: err.message });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server running at http://localhost:${PORT}`);
+    console.log(`Server running at http://localhost:${PORT}`);
 });
